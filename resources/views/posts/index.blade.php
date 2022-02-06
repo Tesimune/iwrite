@@ -62,15 +62,18 @@
 
                 </div>
                 <div class="mb-4">
-                    <label for="title" class="sr-only">Title</label>
-                    <input type="text" name="title" id="title"
-                        class="bg-gray-100 border-2 w-full p-4 rounded-lg mb-3 @error('body') border-red-500 @enderror"
-                        placeholder="Post Something!" value="{{ old('title') }}">
-                    @error('title')
-                        <div class="text-red-500 mt-1 mb-2 text-sm">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                    @auth
+                        <label for="title" class="sr-only">Title</label>
+                        <input type="text" name="title" id="title"
+                            class="bg-gray-100 border-2 w-full p-4 rounded-lg mb-3 @error('body') border-red-500 @enderror"
+                            placeholder="Post Something!" value="{{ old('title') }}">
+                        @error('title')
+                            <div class="text-red-500 mt-1 mb-2 text-sm">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    @endauth
+
                     <label for="body" class="sr-only shadow-inner-lg">Body</label>
                     <textarea name="body" id="body" cols="30" rows="10"
                         class="bg-gray-100 border-2 w-full p-4 rounded-lg @error('body') border-red-500 @enderror"
@@ -86,43 +89,10 @@
             @if ($Posts->count())
 
                 @foreach ($Posts as $post)
-                    <div class="bg-gray-300 dark:bg-slate-500 p-2 m-2 rounded shadow-lg">
-                        <div class="mb-4">
-                            <a href="" class="font-bold dark:text-gray-100">{{ $post->user->name }}</a>
-                            <span
-                                class="text-gray-600 dark:text-gray-400 text-small ml-1">{{ $post->updated_at->diffForHumans() }}</span>
-                            <p class="mb-2 font-bold dark:text-white">{{ $post->title }}</p>
-                            <p class="mb-2 dark:text-white">{{ $post->body }}</p>
-                        </div>
-                        <div class="flex items-center">
-                            @if (!$post->likedBy(auth()->user()))
-                                <form action="{{ route('posts.likes', $post->id) }}" method="post" class="mr-1">
-                                    @csrf
-                                    <button type="submit" class="text-blue-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            @else
-                                <form action="{{ route('posts.likes', $post->id) }}" method="post" class="mr-1">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-blue-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path
-                                                d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            @endif
-                            <span class="text-gray-800 uppercase font-bold">{{ $post->likes->count() }}
-                                {{ Str::plural('Like', $post->likes->count()) }}</span>
-                        </div>
-                    </div>
+                    <x-post :post="$post" />
+                    <a href="{{ route('posts.show', $post) }}"
+                        class="flex justify-end font-bold p-1 mx-3 mb-6 bg-slate-500 dark:text-white rounded">Read
+                        More</a>
                 @endforeach
                 {{ $Posts->links() }}
             @else
